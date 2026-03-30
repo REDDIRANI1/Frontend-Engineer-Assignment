@@ -31,6 +31,10 @@ export function MilestoneForm({ onCreated }: MilestoneFormProps) {
         setSubmitError(
           "Please enter a title with at least 3 characters before submitting."
         );
+      } else if (error instanceof ApiError && error.status >= 500) {
+        setSubmitError(
+          "The server is having trouble right now. Please try again shortly."
+        );
       } else {
         setSubmitError("Something went wrong while saving. Please try again.");
       }

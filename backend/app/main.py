@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +14,7 @@ class Category(str, Enum):
 
 
 class MilestoneCreate(BaseModel):
-    title: str
+    title: Optional[str] = None
     category: Category
 
 
@@ -45,8 +45,7 @@ def get_milestones() -> List[Milestone]:
 
 @app.post("/milestones", response_model=Milestone, status_code=201)
 def create_milestone(payload: MilestoneCreate) -> Milestone:
-    title = payload.title.strip()
-
+    title = (payload.title or "").strip()
     if len(title) < 3:
         raise HTTPException(
             status_code=400, detail="Title is required and must be at least 3 characters."
