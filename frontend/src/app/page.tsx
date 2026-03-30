@@ -2,25 +2,28 @@
 
 import { useEffect, useState } from "react";
 import { fetchMilestones, type Milestone } from "@/lib/api";
+import { MilestoneForm } from "@/components/milestone-form";
+import { MilestoneList } from "@/components/milestone-list";
 
 export default function Home() {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadMilestones = async () => {
-      try {
-        setLoadError(null);
-        const data = await fetchMilestones();
-        setMilestones(data);
-      } catch {
-        setLoadError("Could not load milestones. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadMilestones = async () => {
+    try {
+      setIsLoading(true);
+      setLoadError(null);
+      const data = await fetchMilestones();
+      setMilestones(data);
+    } catch {
+      setLoadError("Could not load milestones. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     void loadMilestones();
   }, []);
 
@@ -34,36 +37,12 @@ export default function Home() {
           Track your achievements and review your progress.
         </p>
       </section>
-
-      <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Milestones</h2>
-
-        {isLoading && (
-          <p className="mt-4 text-sm text-slate-600">Loading milestones...</p>
-        )}
-
-        {loadError && <p className="mt-4 text-sm text-red-600">{loadError}</p>}
-
-        {!isLoading && !loadError && milestones.length === 0 && (
-          <p className="mt-4 text-sm text-slate-600">No milestones found.</p>
-        )}
-
-        {!isLoading && !loadError && milestones.length > 0 && (
-          <ul className="mt-4 space-y-3">
-            {milestones.map((milestone) => (
-              <li
-                key={milestone.id}
-                className="rounded-lg border border-slate-200 bg-slate-50 p-4"
-              >
-                <p className="font-medium text-slate-900">{milestone.title}</p>
-                <p className="mt-1 text-xs text-slate-600">
-                  {milestone.category}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <MilestoneForm onCreated={loadMilestones} />
+      <MilestoneList
+        milestones={milestones}
+        isLoading={isLoading}
+        loadError={loadError}
+      />
     </main>
   );
 }
